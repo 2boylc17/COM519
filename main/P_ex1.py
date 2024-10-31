@@ -3,11 +3,74 @@ from tkinter import messagebox
 from functools import partial
 import sqlite3
 import hashlib
+import xml.etree.ElementTree as ET
 
 # Window
 tkWindow = Tk()  
 tkWindow.geometry('400x250')  
 tkWindow.title('Tkinter SQLite Login Form example ')
+
+def read_XML(username, password):
+        # Passing the path of the
+        # xml document to enable the
+        # parsing process
+        tree = ET.parse('login_details.xml')
+        # getting the parent tag of
+        # the xml document
+        root = tree.getroot()
+
+        # printing the root (parent) tag
+        # of the xml document, along with
+        # its memory location
+        print(root)
+        # printing the attributes of the
+        # first tag from the parent
+        print(root[0].attrib)
+
+        # printing the text contained within
+
+        # the parent
+        for row in root[0]:
+                #print('row', row,'root', root[0],'text', row.text, 'attrib', root[0].text)
+                if row.text == username:
+                        print('Username hash =', row.text)
+                elif row.text == password:
+                        print('Password hash =', row.text)
+
+def write_xml():
+        connection_obj = sqlite3.connect("newdb.db")
+        cursor_obj = connection_obj.cursor()
+        cursor_obj.execute("SELECT * FROM login_details;")
+        get_login_details=cursor_obj.fetchall()
+        # This is the parent (root) tag
+        # onto which other tags would be
+        # created
+        data = ET.Element('user')
+        # Adding a subtag named `login`
+        # inside our root tag
+        element1 = ET.SubElement(data, 'login_dartais')
+        # Adding subtags under the `login`
+        # subtag
+        for row in get_login_details:
+                s_elem1 = ET.SubElement(element1, 'login')
+                s_elem2 = ET.SubElement(element1, 'password')
+                # Adding attributes to the tags under
+                # `items`
+                #s_elem1.set('type', 'login')
+                #s_elem2.set('type', 'Declined')
+                # Adding text between the `E4` and `D5`
+                # subtag
+                s_elem1.text = row[0]
+                s_elem2.text = row[1]
+        # Converting the xml data to byte object,
+        # for allowing flushing data to file
+        # stream
+        b_xml = ET.tostring(data)
+        # Opening a file under the name `items2.xml`,
+        # with operation mode `wb` (write + binary)
+        with open("login_details.xml", "wb") as f:
+            f.write(b_xml)
+
 
 def validate_login(user_name, pass_word):
         connection_obj = sqlite3.connect("newdb.db")
@@ -35,6 +98,7 @@ def validate_login(user_name, pass_word):
 
         # Close the connection
         connection_obj.close()
+        read_XML(dec_username, dec_password)
        
 
 def register_customer(user_name, pass_word):
@@ -61,7 +125,7 @@ def register_customer(user_name, pass_word):
   
         # Close the connection 
         connection_obj.close()
-       
+        write_xml()
 
 # Username label and text entry box
 usernameLabel = Label(tkWindow, text="User Name").grid(row=0, column=0)
