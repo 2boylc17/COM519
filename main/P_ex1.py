@@ -10,7 +10,7 @@ tkWindow = Tk()
 tkWindow.geometry('400x250')  
 tkWindow.title('Tkinter SQLite Login Form example ')
 
-def read_XML(username, password):
+def read_XML(user_input, pass_input):
         # Passing the path of the
         # xml document to enable the
         # parsing process
@@ -32,9 +32,9 @@ def read_XML(username, password):
         # the parent
         for row in root[0]:
                 #print('row', row,'root', root[0],'text', row.text, 'attrib', root[0].text)
-                if row.text == username:
+                if row.text == user_input:
                         print('Username hash =', row.text)
-                elif row.text == password:
+                elif row.text == pass_input:
                         print('Password hash =', row.text)
 
 def write_xml():
@@ -72,6 +72,24 @@ def write_xml():
             f.write(b_xml)
 
 
+def recover_xml():
+        connection_obj = sqlite3.connect("newdb.db")
+        cursor_obj = connection_obj.cursor()
+        tree = ET.parse('login_details.xml')
+        root = tree.getroot()
+        user_input = None
+        inc = 0
+        for num in root[0]:
+                if inc % 2 == 0:
+                        user_input = num.text
+                        print("user", user_input)
+                        inc += 1
+                else:
+                        pass_input = num.text
+                        print("pass", pass_input)
+                        cursor_obj.execute("INSERT INTO login_details VALUES('"+user_input+"', '"+pass_input+"')")
+                        inc = 0
+
 def validate_login(user_name, pass_word):
         connection_obj = sqlite3.connect("newdb.db")
         cursor_obj = connection_obj.cursor()
@@ -85,14 +103,14 @@ def validate_login(user_name, pass_word):
         output1 = cursor_obj.fetchall()
 
         if len(output1) > 0:
-                print("hi")
+                print("success")
                 messagebox.showinfo("showinfo", "correct login and password")
         else:
-                print("no")
+                print("fail")
                 messagebox.showwarning("Warning", "Incorrect login or password")
 
         for row in output1:
-                print(row)
+                print('row', row)
 
         connection_obj.commit()
 
@@ -140,7 +158,7 @@ passwordEntry = Entry(tkWindow, textvariable=password, show='*').grid(row=1, col
 validateLogin = partial(validate_login, username, password)
 
 # Login button
-loginButton1 = Button(tkWindow, text="Login", command=validateLogin).grid(row=3, column=0)
+loginButton1 = Button(tkWindow, text="Login", command=recover_xml).grid(row=3, column=0)
 
 register_customer = partial(register_customer, username, password)
 #register
