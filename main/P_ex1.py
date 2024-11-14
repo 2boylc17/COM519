@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 # Window
 tkWindow = Tk()  
-tkWindow.geometry('400x250')  
+tkWindow.geometry('500x250')
 tkWindow.title('Tkinter SQLite Login Form example ')
 
 def read_XML(user_input, pass_input):
@@ -145,7 +145,67 @@ def register_customer(user_name, pass_word):
         connection_obj.close()
         write_xml()
 
-# Username label and text entry box
+
+def stock_chart_row():
+        connection_obj = sqlite3.connect("newdb.db")
+        cursor_obj = connection_obj.cursor()
+        cursor_obj.execute("SELECT * FROM stock")
+        output1 = cursor_obj.fetchall()
+        root = Tk()
+        root.geometry("500x600")
+        root.title("Stock")
+        canvas = Canvas(root, width=550, height=820)
+        canvas.pack()
+        start_point_text_x = 30
+        start_point_text_y = 110
+        start_point_rect_x = 60
+        start_point_rect_y = 100
+        step = 30
+        count = 0
+        total = 0
+        for row in output1:
+                total = total + int(row[2])
+                print(total)
+        for row in output1:
+                result = (int(row[2]) / total) * 100
+                print(result, "r")
+                canvas.create_text(start_point_text_x, start_point_text_y + (step * count), text=row[1])
+                a = canvas.create_rectangle(start_point_rect_x, start_point_rect_y + (step * count), 60 + result,
+                                            120 + (step * count), fill='red')
+                canvas.create_text(85 + result, 110 + (step * count), text=str(int(result)) + str("%"))
+                count = count + 1
+
+def stock_chart_column():
+        connection_obj = sqlite3.connect("newdb.db")
+        cursor_obj = connection_obj.cursor()
+        cursor_obj.execute("SELECT * FROM stock")
+        output1 = cursor_obj.fetchall()
+        root = Tk()
+        root.geometry("500x600")
+        root.title("Stock")
+        canvas = Canvas(root, width=550, height=820)
+        canvas.pack()
+        start_point_text_x = 30
+        start_point_text_y = 520
+        start_point_rect_x = 30
+        start_point_rect_y = 500
+        step = 70
+        count = 0
+        total = 0
+        for row in output1:
+                total = total + int(row[2])
+                print(total)
+        for row in output1:
+                result = (int(row[2]) / total) * 100
+                print(result, "r")
+                canvas.create_text(start_point_text_x + (step * count), start_point_text_y, text=row[1])
+                a = canvas.create_rectangle(start_point_rect_x + (step * count), start_point_rect_y,
+                                            50 + (step * count), 500 - result, fill='red')
+                canvas.create_text(40 + (step * count), 480 - result, text=str(int(result)) + str("%"))
+                count = count + 1
+
+
+        # Username label and text entry box
 usernameLabel = Label(tkWindow, text="User Name").grid(row=0, column=0)
 username = StringVar()
 usernameEntry = Entry(tkWindow, textvariable=username).grid(row=0, column=1)  
@@ -163,6 +223,10 @@ loginButton1 = Button(tkWindow, text="Login", command=recover_xml).grid(row=3, c
 register_customer = partial(register_customer, username, password)
 #register
 loginButton2 = Button(tkWindow, text="Register", command=register_customer).grid(row=3, column=1)
+
+loginButton3 = Button(tkWindow, text="Stock Chart Horizontal", command=stock_chart_row).grid(row=3, column=2)
+
+loginButton4 = Button(tkWindow, text="Stock Chart Vertical", command=stock_chart_column).grid(row=3, column=3)
 
  
 
