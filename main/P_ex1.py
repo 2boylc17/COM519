@@ -218,7 +218,7 @@ passwordEntry = Entry(tkWindow, textvariable=password, show='*').grid(row=1, col
 validateLogin = partial(validate_login, username, password)
 
 # Login button
-loginButton1 = Button(tkWindow, text="Login", command=recover_xml).grid(row=3, column=0)
+loginButton1 = Button(tkWindow, text="Login", command=validateLogin).grid(row=3, column=0)
 
 register_customer = partial(register_customer, username, password)
 #register
